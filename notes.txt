@@ -1,4 +1,0 @@
-
-Iniciar el primer nodo
-
-iex.bat --name nodo1@127.0.0.1 -S mix
