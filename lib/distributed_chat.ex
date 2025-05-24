@@ -29,21 +29,8 @@ defmodule DistributedChat.CLI do
 
   @impl true
   def handle_info({:room_message, room_name, message}, state) do
-    user_id = Process.get(:user_id)
-
-    # Mostrar siempre mensajes de la sala general
-    # y mensajes de otras salas solo si el usuario está en ellas
-    if room_name == "general" do
-      IO.puts(message)
-    else
-      if user_id do
-        case DistributedChat.UserManager.get_user_room(user_id) do
-          {:ok, ^room_name} -> IO.puts(message)
-          _ -> :ok
-        end
-      end
-    end
-
+    # Mostrar siempre el mensaje (la verificación de sala se hace al enviar)
+    IO.puts(message)
     {:noreply, state}
   end
 

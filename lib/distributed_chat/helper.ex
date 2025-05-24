@@ -36,20 +36,21 @@ defmodule DistributedChat.Helper do
     if user_id do
       case DistributedChat.UserManager.get_user_room(user_id) do
         {:ok, room_name} ->
-          formatted = "[#{room_name}] #{username}: #{message}"
-          IO.puts(formatted)
+          formatted_message = "[#{room_name}] #{username}: #{message}"
 
-          # Enviar a todos los usuarios de la sala (incluyendo otros nodos)
+          # Enviar a TODOS los usuarios de la sala (todos los nodos)
           case DistributedChat.UserManager.get_room_users(room_name) do
-            {:ok, room_users} ->
-              Enum.each(room_users, fn user ->
-                if user.node != Node.self() do
-                  send({DistributedChat.CLI, user.node}, {:room_message, room_name, formatted})
-                end
+            {:ok, users} ->
+              Enum.each(users, fn user ->
+                # Enviar incluso al mismo nodo (para consistencia)
+                send(
+                  {DistributedChat.CLI, user.node},
+                  {:room_message, room_name, formatted_message}
+                )
               end)
 
             {:error, reason} ->
-              IO.puts("Error: #{reason}")
+              IO.puts("Error al enviar: #{reason}")
           end
 
         {:error, reason} ->

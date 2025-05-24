@@ -300,7 +300,14 @@ defmodule DistributedChat.UserManager do
         {:reply, {:error, :room_not_found}, state}
 
       room ->
-        users = Enum.map(room.users, fn user_id -> state.users[user_id] end)
+        users =
+          Enum.map(room.users, fn user_id ->
+            # Asegurar que devolvemos la estructura completa del usuario
+            # Fallback básico
+            Map.get(state.users, user_id) ||
+              %__MODULE__{id: user_id, node: Node.self()}
+          end)
+
         {:reply, {:ok, users}, state}
     end
   end
