@@ -4,6 +4,8 @@ defmodule DistributedChat.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      # Iniciar el administrador de usuarios y salas
+      DistributedChat.UserManager,
       # Iniciar el GenServer para manejar mensajes entre nodos
       DistributedChat.CLI
       # Quitamos la tarea para iniciar la CLI desde aquí
