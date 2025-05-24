@@ -158,17 +158,22 @@ defmodule DistributedChat.Helper do
     if user_id do
       case DistributedChat.UserManager.join_room(room_name, user_id) do
         {:ok, ^room_name} ->
-          IO.puts("Te has unido a la sala '#{room_name}'")
+          IO.puts("Te has unido a '#{room_name}'")
+          # Notificar a la sala antigua y nueva
           broadcast_room_message(room_name, "#{username} se ha unido a la sala")
+          true
 
         {:error, :room_not_found} ->
           IO.puts("Error: La sala '#{room_name}' no existe")
+          false
 
         {:error, reason} ->
-          IO.puts("Error al unirse a la sala: #{reason}")
+          IO.puts("Error al unirse: #{reason}")
+          false
       end
     else
-      IO.puts("Error: Debes registrarte primero con /register NOMBRE")
+      IO.puts("Error: Regístrate primero con /register NOMBRE")
+      false
     end
   end
 

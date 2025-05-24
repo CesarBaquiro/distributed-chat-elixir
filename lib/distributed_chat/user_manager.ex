@@ -204,12 +204,45 @@ defmodule DistributedChat.UserManager do
         new_users = Map.put(state.users, user_id, updated_user)
         new_state = %{state | users: new_users, rooms: new_rooms}
 
-        # Notificar cambio de sala (solo si no es la primera vez)
-        if user.current_room != nil do
-          notify_room_change(updated_user, user.current_room, room_name, new_state)
-        end
+        # Notificar a TODOS los nodos para actualizar el estado
+        broadcast_user_update({:user_changed_room, updated_user, user.current_room, room_name})
 
         {:reply, {:ok, room_name}, new_state}
+    end
+  end
+
+  @impl true
+  def handle_info({:user_changed_room, user, old_room, new_room}, state) do
+    # Actualizar el estado local para reflejar el cambio en el nodo remoto
+    case Map.get(state.users, user.id) do
+      nil ->
+        # Usuario no existe localmente, ignorar
+        {:noreply, state}
+
+      local_user ->
+        # Solo actualizar si el usuario estaba en la sala antigua
+        if local_user.current_room == old_room do
+          # Actualizar sala actual del usuario
+          updated_user = %{local_user | current_room: new_room}
+          new_users = Map.put(state.users, user.id, updated_user)
+
+          # Mover usuario entre salas localmente
+          old_room_users = state.rooms[old_room].users -- [user.id]
+          new_room_users = [user.id | state.rooms[new_room].users]
+
+          new_rooms =
+            state.rooms
+            |> Map.put(old_room, %{state.rooms[old_room] | users: old_room_users})
+            |> Map.put(new_room, %{state.rooms[new_room] | users: new_room_users})
+
+          new_state = %{state | users: new_users, rooms: new_rooms}
+
+          # Mostrar notificación
+          IO.puts("[SISTEMA] #{user.username} se movió a '#{new_room}'")
+          {:noreply, new_state}
+        else
+          {:noreply, state}
+        end
     end
   end
 
