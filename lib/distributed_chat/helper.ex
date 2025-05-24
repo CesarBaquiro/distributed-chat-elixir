@@ -39,7 +39,7 @@ defmodule DistributedChat.Helper do
           formatted = "[#{room_name}] #{username}: #{message}"
           IO.puts(formatted)
 
-          # Enviar a TODOS los usuarios de la sala (incluido otros nodos)
+          # Enviar a todos los usuarios de la sala (incluyendo otros nodos)
           case DistributedChat.UserManager.get_room_users(room_name) do
             {:ok, room_users} ->
               Enum.each(room_users, fn user ->
@@ -49,14 +49,14 @@ defmodule DistributedChat.Helper do
               end)
 
             {:error, reason} ->
-              IO.puts("Error al obtener usuarios de la sala: #{reason}")
+              IO.puts("Error: #{reason}")
           end
 
         {:error, reason} ->
           IO.puts("Error: #{reason}")
       end
     else
-      IO.puts("Error: Debes registrarte primero con /register NOMBRE")
+      IO.puts("Error: Regístrate primero con /register NOMBRE")
     end
   end
 
