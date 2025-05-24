@@ -33,36 +33,72 @@ Iniciar el nodo 2
 iex.bat --name nodo2@127.0.0.1 -S mix
 ```
 
-Conectarse del nodo 1 al nodo 2
+Iniciar la consola
 
 ```
-DistributedChat.Helper.connect_to(:"nodo2@127.0.0.1")
-```
-
-Conectarse del nodo 2 al nodo 1
-
-```
-DistributedChat.Helper.connect_to(:"nodo1@127.0.0.1")
+DistributedChat.Console.start()
 ```
 
 Establecer nombres de usuario
 
 ```
-DistributedChat.Helper.set_username("Nombre del usuario")
+/register <Nombre del usuario>
 ```
 
-Enviar mensajes
+Conectarse del nodo 1 al nodo 2
 
 ```
-DistributedChat.Helper.send_message("Hola desde nodo x ")
+/connect nodo2@127.0.0.1
+```
+
+Conectarse del nodo 2 al nodo 1
+
+```
+/connect nodo1@127.0.0.1
+```
+
+Enviar mensajes por la consola
+
+```
+<Mensaje a enviar>
 ```
 
 ---
 
-Otros comandos
+### Otros comandos
 
 Listar todos los nodos
 
 ```
-DistributedChat.Helper.list_nodes()
+/nodes
+```
+
+Listar todos los usuarios
+
+```
+/users
+```
+
+Listar todas las salas
+
+```
+/rooms
+```
+
+Saber en que sala esta
+
+```
+/room
+```
+
+Crear una sala
+
+```
+/create <Nombre de la sala>
+```
+
+Entrar a una sala
+
+```
+/join <Nombre de la sala>
 ```
