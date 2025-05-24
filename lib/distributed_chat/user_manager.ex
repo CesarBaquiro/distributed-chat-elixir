@@ -246,39 +246,6 @@ defmodule DistributedChat.UserManager do
     end
   end
 
-  defp notify_room_change(user, old_room, new_room, state) do
-    # Obtener usuarios directamente del estado
-    old_users = get_room_users_from_state(old_room, state)
-    new_users = get_room_users_from_state(new_room, state)
-
-    # Notificar a sala antigua
-    Enum.each(old_users, fn u ->
-      if u.id != user.id do
-        send(
-          {DistributedChat.CLI, u.node},
-          {:room_message, old_room, "[SISTEMA] #{user.username} salió de la sala"}
-        )
-      end
-    end)
-
-    # Notificar a sala nueva
-    Enum.each(new_users, fn u ->
-      if u.id != user.id do
-        send(
-          {DistributedChat.CLI, u.node},
-          {:room_message, new_room, "[SISTEMA] #{user.username} entró a la sala"}
-        )
-      end
-    end)
-  end
-
-  defp get_room_users_from_state(room_name, %{users: users, rooms: rooms}) do
-    case Map.get(rooms, room_name) do
-      nil -> []
-      room -> Enum.map(room.users, &Map.get(users, &1))
-    end
-  end
-
   @impl true
   def handle_call({:leave_room, user_id}, _from, state) do
     # Por defecto, volver a la sala general
@@ -372,12 +339,6 @@ defmodule DistributedChat.UserManager do
   end
 
   defp broadcast_user_update(message) do
-    Enum.each(Node.list(), fn node ->
-      send({__MODULE__, node}, message)
-    end)
-  end
-
-  defp broadcast_room_update(message) do
     Enum.each(Node.list(), fn node ->
       send({__MODULE__, node}, message)
     end)
